@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversor de Dados</title>
+  <style>
+    main {
+      background-color: #ffffff;
+      margin-bottom: 30px;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #EFD80C;
+    }
+    .container {
+      max-width: 90%;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      background-image: linear-gradient(to top, #eeee90, #EFD80C, #f1efd9);
+    }
+    textarea {
+      width: 99%;
+      height: 150px;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      resize: none;
+    }
+    button {
+      padding: 8px 16px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Conversor de Dados</h1>
+  <textarea id="dataInput" placeholder="Cole seus dados aqui..."autofocus></textarea>
+  <button onclick="convertData()">Converter</button>
+  <table id="convertedTable">
+    <thead>
+      <tr>
+        <th>PCB Specification</th>
+        <th>Symptom</th>
+        <th>Alarm Code</th>
+        <th>Cause/Steps</th>
+        <th>Defective Parts Spec.</th>
+        <th>Parts Description</th>
+        <th>Name</th>
+        <th>Parts Location</th>
+      </tr>
+    </thead>
+    <tbody id="convertedBody">
+        <button onclick="copyConvertedData()">Copiar</button>
+      <!-- Itens convertidos serão inseridos aqui -->
+    </tbody>
+  </table>
+  
+</div>
+
+<script>
+  function convertData() {
+    const dataInput = document.getElementById("dataInput").value.trim();
+    const rows = dataInput.split("\n");
+    const convertedBody = document.getElementById("convertedBody");
+    convertedBody.innerHTML = "";
+
+    let existingRows = [];
+
+    rows.forEach(row => {
+      const columns = row.split("\t");
+      const PCB = columns[0];
+      const Symptom = columns[1];
+      const AlarmCode = columns[2] === "" ? '""' : `"${columns[2]}"`;
+      const Steps = columns[3];
+      const DefectivePartsSpec = columns[4];
+      const PartsDescription = columns[5];
+      const Name = columns[6];
+      const PartsLocation = columns[7];
+      
+      const rowData = `${PCB}${Symptom}${AlarmCode}${Steps}${DefectivePartsSpec}${PartsDescription}${Name}${PartsLocation}`;
+      if (!existingRows.includes(rowData)) {
+        existingRows.push(rowData);
+
+        const tableRow = document.createElement("tr");
+        tableRow.innerHTML = `
+          <td>${PCB}</td>
+          <td>${Symptom}</td>
+          <td>${AlarmCode}</td>
+          <td>${Steps}</td>
+          <td>${DefectivePartsSpec}</td>
+          <td>${PartsDescription}</td>
+          <td>${Name}</td>
+          <td>${PartsLocation}</td>
+        `;
+        convertedBody.appendChild(tableRow);
+      }
+    });
+  }
+
+  function copyConvertedData() {
+    const convertedBody = document.getElementById("convertedBody");
+    let convertedData = "";
+
+    convertedBody.querySelectorAll("tr").forEach(row => {
+      const PCB = row.children[0].innerText;
+      const Symptom = row.children[1].innerText;
+      const AlarmCode = row.children[2].innerText;
+      const Steps = row.children[3].innerText;
+      const DefectivePartsSpec = row.children[4].innerText;
+      const PartsDescription = row.children[5].innerText;
+      const Name = row.children[6].innerText;
+      const PartsLocation = row.children[7].innerText;
+      
+      convertedData += `{"PCB Specification": "${PCB}", "Symptom": "${Symptom}", "Alarm Code": ${AlarmCode}, "Cause/Steps": "${Steps}", "Defective Parts Spec.": "${DefectivePartsSpec}", "Parts Description": "${PartsDescription}", "Name": "${Name}", "Parts Location": "${PartsLocation}"},\n`;
+    });
+
+    convertedData = convertedData.slice(0, -2); // Removendo a vírgula extra e a quebra de linha do último item
+    navigator.clipboard.writeText(`${convertedData}`);
+    alert("Dados convertidos copiados para a área de transferência!");
+    location.reload();
+    
+  }
+</script>
+
+</body>
+</html>
